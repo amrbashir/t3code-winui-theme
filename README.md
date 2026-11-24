@@ -11,11 +11,11 @@ A Windows 11 / WinUI 3 (Fluent) theme for [T3 Code](https://github.com/pingdotgg
 
 ## Install
 
-1. Download [`winui.json`](winui.json).
+1. Copy the contents of [`winui.json`](winui.json).
 2. In T3 Code, open **Settings → Appearance** and choose **Add theme**.
-3. Choose the file, then **Add theme**.
+3. Paste it under **Theme JSON** and choose **Add theme**.
 
-Or publish it from the machine running T3 Code:
+Or, from a clone of this repo on the machine running T3 Code:
 
 ```bash
 t3 theme set winui.json
