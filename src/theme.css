@@ -63,6 +63,7 @@
   --w-tab-hover: rgba(0, 0, 0, .0373);
   --w-tab-pressed: rgba(255, 255, 255, .7);
   --w-layer: rgba(255, 255, 255, .5);
+  --w-pane-edge-raw: #E7E7E7;
   --w-layer-stroke-raw: rgba(0, 0, 0, .0578);
   --w-card-fill: rgba(255, 255, 255, .7);
   --w-card-fill-2: rgba(246, 246, 246, .5);
@@ -136,6 +137,7 @@
   --w-tab-hover: rgba(255, 255, 255, .0605);
   --w-tab-pressed: rgba(58, 58, 58, .45);
   --w-layer: rgba(58, 58, 58, .3);
+  --w-pane-edge-raw: #353535;
   --w-layer-stroke-raw: rgba(255, 255, 255, .06);
   --w-card-fill: rgba(255, 255, 255, .0512);
   --w-card-fill-2: rgba(255, 255, 255, .0326);
@@ -234,6 +236,8 @@
   --w-accent-stroke-top: rgba(255, 255, 255, .08);
   --w-accent-line: linear-gradient(var(--w-accent), var(--w-accent));
   --w-field-line: linear-gradient(var(--w-text-bottom), var(--w-text-bottom));
+  /* Composite the shared pane/tab edge once so its opacity cannot vary by backdrop. */
+  --w-pane-edge: color-mix(in srgb, color-mix(in srgb, var(--w-pane-edge-raw) var(--appearance-contrast-base, 100%), var(--w-base)), var(--w-text) var(--appearance-contrast-border-boost, 0%));
   --w-content-layer: linear-gradient(var(--w-layer), var(--w-layer)), var(--w-base);
 }
 
@@ -333,7 +337,7 @@ body,
 [data-chat-header] + div,
 [data-slot="sidebar-inset"] header[class*="max-h-[var(--workspace-topbar-height)]"] + * {
   background: var(--w-content-layer) !important;
-  border-top: 1px solid var(--w-layer-stroke) !important;
+  border-top: 1px solid var(--w-pane-edge) !important;
   border-left: 1px solid var(--w-layer-stroke) !important;
   border-top-left-radius: var(--w-radius-overlay) !important;
   overflow: clip;
@@ -368,7 +372,7 @@ body,
 /* [fragile] internal hook */
 [data-right-panel-surface-content] {
   background: var(--w-content-layer) !important;
-  border-top: 1px solid var(--w-layer-stroke) !important;
+  border-top: 1px solid var(--w-pane-edge) !important;
   border-left: 0 !important;
   -webkit-mask-image: none !important;
   mask-image: none !important;
@@ -399,7 +403,7 @@ body,
 
 [data-settings-page-scroll] {
   background: var(--w-content-layer) !important;
-  border-top: 1px solid var(--w-layer-stroke) !important;
+  border-top: 1px solid var(--w-pane-edge) !important;
   border-left: 1px solid var(--w-layer-stroke) !important;
   border-top-left-radius: var(--w-radius-overlay) !important;
   -webkit-mask-image: none !important;
@@ -663,12 +667,12 @@ div:has(> div > button[data-sidebar="menu-button"][data-size="icon"][data-slot="
     background: transparent;
   }
 
-  /* Selected: the content's fill with flared feet; its dark edge overlaps the neighbors' borders */
+  /* Selected: the content's fill with flared feet; its layer edge overlaps the neighbors' borders */
   & [data-active-tab="true"] {
     z-index: 1;
     margin-inline: -1px !important;
     background: var(--w-solid-tertiary) padding-box !important;
-    border-color: var(--w-card-stroke) !important;
+    border-color: var(--w-pane-edge) !important;
     color: var(--w-text) !important;
     font-weight: 600 !important;
 
@@ -683,12 +687,12 @@ div:has(> div > button[data-sidebar="menu-button"][data-size="icon"][data-slot="
 
     &::before {
       left: -5px;
-      background: radial-gradient(circle at 0 0, transparent 4px, var(--w-card-stroke) 4px 5px, var(--w-solid-tertiary) 5px);
+      background: radial-gradient(circle at 0 0, transparent 4px, var(--w-pane-edge) 4px 5px, var(--w-solid-tertiary) 5px);
     }
 
     &::after {
       right: -5px;
-      background: radial-gradient(circle at 100% 0, transparent 4px, var(--w-card-stroke) 4px 5px, var(--w-solid-tertiary) 5px);
+      background: radial-gradient(circle at 100% 0, transparent 4px, var(--w-pane-edge) 4px 5px, var(--w-solid-tertiary) 5px);
     }
   }
 }
