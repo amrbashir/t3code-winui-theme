@@ -1,0 +1,1905 @@
+/* =====================================================================
+   WinUI: Windows 11 / WinUI 3 (Fluent) theme for T3 Code
+
+   Sections
+     0. Tokens (light + dark)
+     1. Typography & icons
+     2. Window chrome: base color, sidebar, title bar
+     3. Content layer: chat, pages, right pane
+     4. Navigation (sidebar rows)
+     5. Buttons
+     6. Text input
+     7. Selection controls: ToggleSwitch, CheckBox, RadioButton, Slider
+     8. ComboBox, ToggleButton, Segmented
+     9. Flyouts: menus, popovers, tooltips, toasts, command palette, sheets
+    10. ContentDialog
+    11. Status: badges, InfoBar
+    12. Settings cards & tables
+    13. Chat content
+    14. Scrollbars & misc
+
+   Conventions
+     - All colors come from --w-* tokens (values from WinUI's theme resources).
+       Tokens that have a T3 color role read it (var(--app-theme-*)), so the role
+       is the single source of truth; the fallback after the comma is only used
+       if the role variable is missing.
+     - Strokes follow Settings > Interface > Contrast, through the app's own
+       variables. Surfaces are solid: no blur, translucency or background image.
+     - !important is needed because the app's utility classes are more specific.
+     - Corners, fades, accent states and gradient recipes are tokens (end of section 0).
+     - States and parts are nested under their control, so its selector is written once.
+       Keep nested parents to one selector or :is() with equal specificity: in a list, "&"
+       takes the highest specificity of the list. That is why TextBox is not nested.
+     - "B" in comments = any T3 button: [data-slot="button"] or an element with
+       the Button base classes (menu/popover triggers rendered as buttons).
+
+   Selector stability
+     The T3 theme guide lists a small set of stable selectors. Rules that also
+     rely on internal class names or undocumented data attributes are marked
+     [fragile] below; re-check those first after a T3 Code update. data-slot
+     values outside the guide's list come from the UI component library and are
+     fairly stable, so they are not marked.
+
+   Color roles vs CSS
+     Roles only accept opaque hex colors. Where Windows uses translucency (sidebar
+     row fills on the base color), the role holds the closest opaque color and the CSS
+     overrides the app variable with the translucent value; both are noted inline.
+   ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   0. Tokens
+   --------------------------------------------------------------------- */
+
+:root {
+  --win-font: "Segoe UI Variable Text", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --win-mono: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+  --surface-grain: none !important;
+}
+
+:root:not(.dark) {
+  /* Surfaces */
+  --w-base: #F3F3F3;
+  --w-solid-tertiary: var(--app-theme-canvas, #F9F9F9);
+  --w-tab-hover: rgba(0, 0, 0, .0373);
+  --w-tab-pressed: rgba(255, 255, 255, .7);
+  --w-layer: rgba(255, 255, 255, .5);
+  --w-layer-stroke-raw: rgba(0, 0, 0, .0578);
+  --w-card-fill: rgba(255, 255, 255, .7);
+  --w-card-fill-2: rgba(246, 246, 246, .5);
+  --w-card-stroke-raw: rgba(0, 0, 0, .0578);
+  --w-divider-raw: rgba(0, 0, 0, .0803);
+  --w-flyout-fill: #FCFCFC;
+  --w-dialog-top: #FFFFFF;
+  --w-dialog-footer: #F3F3F3;
+  --w-dialog-stroke-raw: rgba(117, 117, 117, .4);
+  --w-flyout-stroke-raw: rgba(0, 0, 0, .0578);
+
+  /* Text */
+  --w-text: var(--app-theme-text, rgba(0, 0, 0, .8956));
+  --w-text-secondary-raw: var(--app-theme-text-muted, rgba(0, 0, 0, .6063));
+  --w-text-disabled: rgba(0, 0, 0, .3614);
+
+  /* Controls */
+  --w-ctrl-fill: rgba(255, 255, 255, .7);
+  --w-ctrl-fill-hover: rgba(249, 249, 249, .5);
+  --w-ctrl-fill-pressed: rgba(249, 249, 249, .3);
+  --w-ctrl-fill-disabled: rgba(249, 249, 249, .3);
+  --w-ctrl-fill-active: #FFFFFF;
+  --w-ctrl-alt-fill: rgba(0, 0, 0, .0241);
+  --w-ctrl-alt-fill-hover: rgba(0, 0, 0, .0578);
+  --w-ctrl-stroke-raw: rgba(0, 0, 0, .0578);
+  --w-ctrl-stroke-top-raw: rgba(0, 0, 0, .0578);
+  --w-ctrl-stroke-bot-raw: rgba(0, 0, 0, .1622);
+  --w-text-bottom-raw: rgba(0, 0, 0, .4458);
+  --w-strong-stroke-raw: rgba(0, 0, 0, .4458);
+  --w-strong-stroke-disabled: rgba(0, 0, 0, .2169);
+  --w-subtle-hover: rgba(0, 0, 0, .0373);
+  --w-subtle-pressed: rgba(0, 0, 0, .0241);
+  --w-thumb-fill: #FFFFFF;
+  --w-scroll: rgba(0, 0, 0, .4458);
+
+  /* Accent */
+  --w-accent: var(--app-theme-accent, #0067C0);
+  --w-accent-text: #003E92;
+  --w-on-accent: var(--app-theme-accent-foreground, #FFFFFF);
+  --w-accent-stroke-bot: rgba(0, 0, 0, .4);
+  --w-accent-disabled: rgba(0, 0, 0, .2169);
+  --w-on-accent-disabled: #FFFFFF;
+
+  /* Status */
+  --w-success: var(--app-theme-update, #0F7B0F);
+  --w-success-bg: var(--app-theme-update-surface, #DFF6DD);
+  --w-caution: var(--app-theme-warning, #9D5D00);
+  --w-caution-bg: var(--app-theme-warning-surface, #FFF4CE);
+  --w-critical: var(--app-theme-error, #C42B1C);
+  --w-critical-bg: var(--app-theme-error-surface, #FDE7E9);
+
+  /* Focus & elevation */
+  --w-focus-outer: var(--app-theme-focus, rgba(0, 0, 0, .8956));
+  --w-focus-inner: #FFFFFF;
+  --w-flyout-shadow: 0 8px 16px rgba(0, 0, 0, .14);
+  --w-dialog-shadow: 0 32px 64px rgba(0, 0, 0, .1876), 0 2px 21px rgba(0, 0, 0, .1474);
+  --w-tip-shadow: 0 4px 8px rgba(0, 0, 0, .14);
+
+  /* [fragile] App variables. The sidebar sits on the base color and rows use translucent subtle fills;
+     roles can only hold opaque colors, so these override the sidebar* roles. */
+  --sidebar: transparent !important;
+  --sidebar-row-hover: rgba(0, 0, 0, .0373) !important;
+  --sidebar-row-active: rgba(0, 0, 0, .0241) !important;
+  --sidebar-row-selected: rgba(0, 0, 0, .0373) !important;
+}
+
+.dark {
+  /* Surfaces */
+  --w-base: #202020;
+  --w-solid-tertiary: var(--app-theme-canvas, #282828);
+  --w-tab-hover: rgba(255, 255, 255, .0605);
+  --w-tab-pressed: rgba(58, 58, 58, .45);
+  --w-layer: rgba(58, 58, 58, .3);
+  --w-layer-stroke-raw: rgba(255, 255, 255, .06);
+  --w-card-fill: rgba(255, 255, 255, .0512);
+  --w-card-fill-2: rgba(255, 255, 255, .0326);
+  --w-card-stroke-raw: rgba(0, 0, 0, .2);
+  --w-divider-raw: rgba(255, 255, 255, .0837);
+  --w-flyout-fill: #2C2C2C;
+  --w-dialog-top: #2B2B2B;
+  --w-dialog-footer: #202020;
+  --w-dialog-stroke-raw: rgba(117, 117, 117, .4);
+  --w-flyout-stroke-raw: rgba(0, 0, 0, .2);
+
+  /* Text */
+  --w-text: var(--app-theme-text, #FFFFFF);
+  --w-text-secondary-raw: var(--app-theme-text-muted, rgba(255, 255, 255, .786));
+  --w-text-disabled: rgba(255, 255, 255, .3628);
+
+  /* Controls */
+  --w-ctrl-fill: rgba(255, 255, 255, .0605);
+  --w-ctrl-fill-hover: rgba(255, 255, 255, .0837);
+  --w-ctrl-fill-pressed: rgba(255, 255, 255, .0326);
+  --w-ctrl-fill-disabled: rgba(255, 255, 255, .0419);
+  --w-ctrl-fill-active: rgba(30, 30, 30, .7);
+  --w-ctrl-alt-fill: rgba(0, 0, 0, .1);
+  --w-ctrl-alt-fill-hover: rgba(255, 255, 255, .0419);
+  --w-ctrl-stroke-raw: rgba(255, 255, 255, .0698);
+  --w-ctrl-stroke-top-raw: rgba(255, 255, 255, .093);
+  --w-ctrl-stroke-bot-raw: rgba(255, 255, 255, .0698);
+  --w-text-bottom-raw: rgba(255, 255, 255, .5442);
+  --w-strong-stroke-raw: rgba(255, 255, 255, .5442);
+  --w-strong-stroke-disabled: rgba(255, 255, 255, .1581);
+  --w-subtle-hover: rgba(255, 255, 255, .0605);
+  --w-subtle-pressed: rgba(255, 255, 255, .0419);
+  --w-thumb-fill: #454545;
+  --w-scroll: rgba(255, 255, 255, .5442);
+
+  /* Accent */
+  --w-accent: var(--app-theme-accent, #4CC2FF);
+  --w-accent-text: #99EBFF;
+  --w-on-accent: var(--app-theme-accent-foreground, #000000);
+  --w-accent-stroke-bot: rgba(0, 0, 0, .14);
+  --w-accent-disabled: rgba(255, 255, 255, .1581);
+  --w-on-accent-disabled: rgba(255, 255, 255, .5302);
+
+  /* Status */
+  --w-success: var(--app-theme-update, #6CCB5F);
+  --w-success-bg: var(--app-theme-update-surface, #393D1B);
+  --w-caution: var(--app-theme-warning, #FCE100);
+  --w-caution-bg: var(--app-theme-warning-surface, #433519);
+  --w-critical: var(--app-theme-error, #FF99A4);
+  --w-critical-bg: var(--app-theme-error-surface, #442726);
+
+  /* Focus & elevation */
+  --w-focus-outer: var(--app-theme-focus, #FFFFFF);
+  --w-focus-inner: rgba(0, 0, 0, .7);
+  --w-flyout-shadow: 0 8px 16px rgba(0, 0, 0, .26);
+  --w-dialog-shadow: 0 32px 64px rgba(0, 0, 0, .37), 0 2px 21px rgba(0, 0, 0, .37);
+  --w-tip-shadow: 0 4px 8px rgba(0, 0, 0, .26);
+
+  /* [fragile] App variables (see note in the light block) */
+  --sidebar: transparent !important;
+  --sidebar-row-hover: rgba(255, 255, 255, .0605) !important;
+  --sidebar-row-active: rgba(255, 255, 255, .0419) !important;
+  --sidebar-row-selected: rgba(255, 255, 255, .0605) !important;
+}
+
+/* Derived tokens. Declared on both selectors so they resolve with the active appearance. */
+:root,
+.dark {
+  /* Strokes follow Settings > Interface > Contrast, the same way the app's own --contrast-border does:
+     below 100% they fade, above 100% they blend toward the text color. */
+  --w-layer-stroke: color-mix(in srgb, color-mix(in srgb, var(--w-layer-stroke-raw) var(--appearance-contrast-base, 100%), transparent), var(--w-text) var(--appearance-contrast-border-boost, 0%));
+  --w-card-stroke: color-mix(in srgb, color-mix(in srgb, var(--w-card-stroke-raw) var(--appearance-contrast-base, 100%), transparent), var(--w-text) var(--appearance-contrast-border-boost, 0%));
+  --w-divider: color-mix(in srgb, color-mix(in srgb, var(--w-divider-raw) var(--appearance-contrast-base, 100%), transparent), var(--w-text) var(--appearance-contrast-border-boost, 0%));
+  --w-dialog-stroke: color-mix(in srgb, color-mix(in srgb, var(--w-dialog-stroke-raw) var(--appearance-contrast-base, 100%), transparent), var(--w-text) var(--appearance-contrast-border-boost, 0%));
+  --w-flyout-stroke: color-mix(in srgb, color-mix(in srgb, var(--w-flyout-stroke-raw) var(--appearance-contrast-base, 100%), transparent), var(--w-text) var(--appearance-contrast-border-boost, 0%));
+  --w-ctrl-stroke: color-mix(in srgb, color-mix(in srgb, var(--w-ctrl-stroke-raw) var(--appearance-contrast-base, 100%), transparent), var(--w-text) var(--appearance-contrast-border-boost, 0%));
+  --w-ctrl-stroke-top: color-mix(in srgb, color-mix(in srgb, var(--w-ctrl-stroke-top-raw) var(--appearance-contrast-base, 100%), transparent), var(--w-text) var(--appearance-contrast-border-boost, 0%));
+  --w-ctrl-stroke-bot: color-mix(in srgb, color-mix(in srgb, var(--w-ctrl-stroke-bot-raw) var(--appearance-contrast-base, 100%), transparent), var(--w-text) var(--appearance-contrast-border-boost, 0%));
+  --w-text-bottom: color-mix(in srgb, color-mix(in srgb, var(--w-text-bottom-raw) var(--appearance-contrast-base, 100%), transparent), var(--w-text) var(--appearance-contrast-border-boost, 0%));
+  --w-strong-stroke: color-mix(in srgb, color-mix(in srgb, var(--w-strong-stroke-raw) var(--appearance-contrast-base, 100%), transparent), var(--w-text) var(--appearance-contrast-border-boost, 0%));
+
+  /* Secondary text gains contrast above 100% too */
+  --w-text-secondary: color-mix(in srgb, var(--w-text-secondary-raw), var(--w-text) var(--appearance-contrast-boost, 0%));
+
+  /* Fluent 2 danger (red palette), same in both appearances */
+  --w-danger: #D13438;
+  --w-danger-hover: #BC2F32;
+  --w-danger-pressed: #9F282B;
+
+  /* Shared values and recipes */
+  --w-radius: 4px;
+  --w-radius-overlay: 8px;
+  --w-fade: 83ms linear;
+  --w-accent-hover: color-mix(in srgb, var(--w-accent) 90%, transparent);
+  --w-accent-pressed: color-mix(in srgb, var(--w-accent) 80%, transparent);
+  --w-accent-stroke-top: rgba(255, 255, 255, .08);
+  --w-accent-line: linear-gradient(var(--w-accent), var(--w-accent));
+  --w-field-line: linear-gradient(var(--w-text-bottom), var(--w-text-bottom));
+  --w-content-layer: linear-gradient(var(--w-layer), var(--w-layer)), var(--w-base);
+}
+
+
+/* ---------------------------------------------------------------------
+   1. Typography & icons
+   --------------------------------------------------------------------- */
+
+body,
+button,
+input,
+textarea,
+select {
+  font-family: var(--win-font) !important;
+}
+
+code,
+pre,
+kbd,
+samp,
+.chat-markdown-codeblock,
+.chat-markdown code {
+  font-family: var(--win-mono) !important;
+}
+
+/* Fluent System Icons are drawn with thin strokes */
+svg.lucide {
+  stroke-width: 1.5;
+}
+
+
+/* ---------------------------------------------------------------------
+   2. Window chrome: base color, sidebar, title bar
+   --------------------------------------------------------------------- */
+
+html,
+body,
+[data-slot="sidebar-inner"] {
+  background: var(--w-base) !important;
+}
+
+/* Sidebar sits directly on the base color: no fills, borders or dividers */
+[data-slot="sidebar-wrapper"],
+[data-slot="sidebar"],
+[data-slot="sidebar-container"],
+[data-slot="sidebar-gap"] {
+  background: transparent !important;
+}
+
+[data-slot="sidebar-wrapper"],
+[data-slot="sidebar"],
+[data-slot="sidebar-inner"],
+[data-slot="sidebar-container"],
+[data-slot="sidebar-gap"] {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Settings' own navigation pane: no divider against the content */
+/* [fragile] internal hook */
+[class~="w-60"][class~="border-e"][class~="bg-sidebar"] {
+  border-color: transparent !important;
+}
+
+/* The workspace and its title rows are see-through, so the title bar shares the sidebar's base color */
+[data-slot="sidebar-inset"] {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+[data-slot="sidebar-inset"] .bg-background:where(:not([data-slot="switch-thumb"])),
+[data-workspace-area="conversation"],
+.messages-timeline-scroll {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* [fragile] internal hook */
+[data-chat-header],
+[data-slot="sidebar-inset"] header[class*="max-h-[var(--workspace-topbar-height)]"] {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+
+/* ---------------------------------------------------------------------
+   3. Content layer (NavigationView content frame)
+      Starts below the title bar: lighter surface over the base color, faint edge,
+      rounded top-left corner.
+   --------------------------------------------------------------------- */
+
+/* [fragile] internal hook */
+[data-chat-header] + div,
+[data-slot="sidebar-inset"] header[class*="max-h-[var(--workspace-topbar-height)]"] + * {
+  background: var(--w-content-layer) !important;
+  border-top: 1px solid var(--w-layer-stroke) !important;
+  border-left: 1px solid var(--w-layer-stroke) !important;
+  border-top-left-radius: var(--w-radius-overlay) !important;
+  overflow: clip;
+
+  /* The app's top scroll-fade mask would fade the layer's own background */
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+[data-thread-terminal-drawer] {
+  border-left: 1px solid var(--w-layer-stroke);
+}
+
+/* Right pane (Diff / Files / Browser ...) beside the chat (inline mode).
+   The tab row stays on the base color with the title bar; the pane's content joins the content layer.
+   One uniform full-height divider on the pane's own edge separates it from the chat. */
+/* [fragile] internal hook */
+[data-preview-panel-mode="inline"],
+[data-preview-panel-mode="inline"]::before,
+[data-preview-panel-mode="inline"]::after,
+[data-right-panel-tabbar] {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* [fragile] internal hook */
+[data-preview-panel-mode="inline"] {
+  border-left: 1px solid var(--w-divider) !important;
+}
+
+/* [fragile] internal hook */
+[data-right-panel-surface-content] {
+  background: var(--w-content-layer) !important;
+  border-top: 1px solid var(--w-layer-stroke) !important;
+  border-left: 0 !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+
+  & .bg-background:where(:not([data-slot="switch-thumb"])) {
+    background-color: transparent !important;
+  }
+}
+
+/* Settings window = Windows Settings layout (it's a dialog over the app):
+   navigation pane and title row on the solid base color, the page on the content layer
+   (lighter, faint edge, rounded top-left corner). */
+:is([data-slot="dialog-popup"], [data-slot="sheet-popup"]):has([data-settings-page-scroll]) {
+  background: var(--w-base) !important;
+
+  & :is(.bg-background, .bg-sidebar, .bg-popover):where(:not([data-slot="switch-thumb"])) {
+    background-color: transparent !important;
+  }
+}
+
+/* No rule under the title row ("Settings / General"): the layer's edge separates it */
+/* [fragile] internal hook */
+:is([data-slot="dialog-popup"], [data-slot="sheet-popup"]):has([data-settings-page-scroll]) [class~="h-12"][class~="border-b"],
+:has(+ [data-settings-page-scroll]) {
+  border-bottom-color: transparent !important;
+  box-shadow: none !important;
+}
+
+[data-settings-page-scroll] {
+  background: var(--w-content-layer) !important;
+  border-top: 1px solid var(--w-layer-stroke) !important;
+  border-left: 1px solid var(--w-layer-stroke) !important;
+  border-top-left-radius: var(--w-radius-overlay) !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+/* Pane toolbars (e.g. Diff: "Changes" + view toggles) sit flush against the layer's top edge: give them room */
+/* [fragile] internal hook */
+[data-right-panel-surface-content] :is([data-surface-subheader], div[class*="in-data-[preview-panel-mode=inline]:mb-3"]) {
+  margin-top: 8px !important;
+}
+
+/* Pull request header (crumbs + Merge / Check out / ... actions) and issue header
+   (repo / #key ... Open / link / refresh): same offset from the layer's top edge */
+/* [fragile] internal hook */
+[data-right-panel-surface-content] [class~="@container/pr-header"] {
+  padding-top: 8px !important;
+}
+
+/* [fragile] internal hook */
+/* Only the issue header row: the first row of the issue body's "px-4 pb-1" wrapper.
+   The Button "xs" size shares these classes, so buttons and other slotted controls are excluded. */
+[data-right-panel-surface-content] [class~="px-4"][class~="pb-1"] > [class~="h-7"][class~="gap-1"][class~="sm:text-xs"]:first-child:not(button, [data-slot]) {
+  margin-top: 8px !important;
+}
+
+
+/* ---------------------------------------------------------------------
+   4. Navigation: sidebar rows with the NavigationView selection pill
+   --------------------------------------------------------------------- */
+
+/* [fragile] internal hook */
+[data-thread-item] [aria-current],
+[data-sidebar-row],
+[data-slot="sidebar-menu-button"] {
+  position: relative;
+  border-radius: var(--w-radius) !important;
+}
+
+/* [fragile] internal hook */
+[data-thread-item] [aria-current]:not([aria-current="false"])::before,
+[data-sidebar-row][aria-current]:not([aria-current="false"])::before,
+[data-slot="sidebar-menu-button"][data-active="true"]::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 25% auto 25% 0 !important;
+  width: 3px !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 3px !important;
+  background: var(--w-accent) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Sidebar top: search box on its own row with Filter inside it (filtering narrows the same list); below it
+   New thread as a labeled standard button and Add project as an icon button. Labels are the app's own
+   aria-labels, so they follow its language. */
+/* [fragile] internal hook */
+div:has(> div > button[data-sidebar="menu-button"][data-size="icon"][data-slot="combobox-trigger"]) {
+  position: relative;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+
+  & > :first-child {
+    flex: 1 0 100% !important;
+    padding-inline-end: 36px !important;
+  }
+
+  & > div:has(> button[data-slot="combobox-trigger"]) {
+    flex: 1 0 100% !important;
+    min-width: 0;
+    gap: 8px !important;
+
+    & > button {
+      justify-content: center !important;
+      padding: 0 !important;
+      border-radius: var(--w-radius) !important;
+    }
+
+    /* Filter */
+    & > button[data-slot="combobox-trigger"] {
+      position: absolute !important;
+      inset: 4px 4px auto auto;
+      width: 28px !important;
+      height: 24px !important;
+    }
+
+    /* Add project, New thread */
+    & > button:not([data-slot="combobox-trigger"]) {
+      order: 1;
+      width: 32px !important;
+      height: 32px !important;
+      background: var(--w-ctrl-fill) !important;
+      background-clip: padding-box !important;
+      border: 1px solid var(--w-ctrl-stroke-top) !important;
+      border-bottom-color: var(--w-ctrl-stroke-bot) !important;
+      color: var(--w-text) !important;
+      transition: background-color var(--w-fade), color var(--w-fade) !important;
+
+      &:hover {
+        background: var(--w-ctrl-fill-hover) !important;
+        background-clip: padding-box !important;
+      }
+
+      &:active {
+        background: var(--w-ctrl-fill-pressed) !important;
+        background-clip: padding-box !important;
+        color: var(--w-text-secondary) !important;
+      }
+
+      & > svg {
+        color: inherit !important;
+      }
+
+      &:last-of-type {
+        order: 0;
+        flex: 1 1 0;
+        width: auto !important;
+        min-width: 32px;
+        padding-inline: 10px !important;
+        gap: 8px !important;
+        font-size: 14px !important;
+        font-weight: 400 !important;
+
+        &::after {
+          content: attr(aria-label);
+          overflow: hidden;
+          min-width: 0;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+}
+
+/* Right-pane tab strip = TabView. The bar overlaps the content layer by 1px, so the selected tab can
+   cover the layer's top edge and merge into it; the edge itself stays level with the chat's. */
+/* [fragile] internal hook */
+[data-right-panel-tabbar] {
+  position: relative;
+  z-index: 1;
+  height: calc(var(--workspace-topbar-height) + 1px) !important;
+  min-height: calc(var(--workspace-topbar-height) + 1px) !important;
+  margin-bottom: -1px !important;
+}
+
+/* [fragile] internal hook */
+[data-right-panel-tab-list] {
+  & [data-slot="scroll-area-viewport"] > div {
+    align-items: flex-end !important;
+    gap: 0 !important;
+    padding-inline: 4px !important;
+  }
+
+  /* Add button */
+  & [data-slot="menu-trigger"] {
+    width: 32px !important;
+    height: 24px !important;
+    margin: 0 0 4px 3px !important;
+  }
+
+  /* The 1px border stays clear of the fill, so neighboring tabs never touch */
+  & [data-active-tab] {
+    position: relative;
+    height: 32px !important;
+    min-width: 100px !important;
+    max-width: 240px !important;
+    padding: 0 8px !important;
+    gap: 10px !important;
+    border: 1px solid transparent !important;
+    border-bottom: 0 !important;
+    border-radius: var(--w-radius-overlay) var(--w-radius-overlay) 0 0 !important;
+    background: transparent !important;
+    background-clip: padding-box !important;
+    color: var(--w-text-secondary) !important;
+    transition: background-color var(--w-fade), color var(--w-fade) !important;
+
+    /* Icon */
+    & > button:first-child > span,
+    & > button:first-child > span > :is(svg, img) {
+      width: 16px !important;
+      height: 16px !important;
+    }
+
+    /* The app swaps the icon for the close button on hover. Here the icon stays and the same button's X
+       sits at the tab's end. Only the X takes its clicks; the label's click area covers the rest of the tab. */
+    &:has(> button:first-child > span + svg) {
+      padding-inline-end: 40px !important;
+
+      & > button:first-child {
+        position: static !important;
+        background: transparent !important;
+        pointer-events: none;
+      }
+
+      & > button:first-child > span {
+        display: flex !important;
+      }
+
+      & > button:first-child > svg {
+        display: block !important;
+        position: absolute;
+        z-index: 1;
+        inset: 4px 4px auto auto;
+        box-sizing: border-box;
+        width: 32px !important;
+        height: 24px !important;
+        padding: 6px 10px;
+        border-radius: var(--w-radius);
+        color: var(--w-text);
+        pointer-events: auto;
+      }
+
+      /* The label is the last button; a tab that plays audio has Mute in between, a tab being renamed has no label */
+      & > button:last-of-type:not(:first-child)::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+      }
+
+      & > button:not(:first-child, :last-of-type) {
+        position: relative;
+        z-index: 1;
+      }
+
+      & > button:first-child > svg:hover {
+        background: var(--w-subtle-hover);
+      }
+
+      & > button:first-child > svg:active {
+        background: var(--w-subtle-pressed);
+        color: var(--w-text-secondary);
+      }
+    }
+
+    &:not([data-active-tab="true"]):hover {
+      background: var(--w-tab-hover) padding-box !important;
+    }
+
+    &:not([data-active-tab="true"]):active {
+      background: var(--w-tab-pressed) padding-box !important;
+    }
+  }
+
+  /* Separators, hidden beside the selected or hovered tab */
+  & [data-active-tab="false"]::after {
+    content: "";
+    position: absolute;
+    inset: 8px -1px 8px auto;
+    width: 1px;
+    background: var(--w-divider);
+  }
+
+  & [data-active-tab="false"]:is(:hover, :has(+ [data-active-tab="true"]), :has(+ [data-active-tab]:hover))::after {
+    background: transparent;
+  }
+
+  /* Selected: the content's fill with flared feet; its dark edge overlaps the neighbors' borders */
+  & [data-active-tab="true"] {
+    z-index: 1;
+    margin-inline: -1px !important;
+    background: var(--w-solid-tertiary) padding-box !important;
+    border-color: var(--w-card-stroke) !important;
+    color: var(--w-text) !important;
+    font-weight: 600 !important;
+
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      width: 5px;
+      height: 5px;
+    }
+
+    &::before {
+      left: -5px;
+      background: radial-gradient(circle at 0 0, transparent 4px, var(--w-card-stroke) 4px 5px, var(--w-solid-tertiary) 5px);
+    }
+
+    &::after {
+      right: -5px;
+      background: radial-gradient(circle at 100% 0, transparent 4px, var(--w-card-stroke) 4px 5px, var(--w-solid-tertiary) 5px);
+    }
+  }
+}
+
+
+/* ---------------------------------------------------------------------
+   5. Buttons
+   --------------------------------------------------------------------- */
+
+/* The app's inner highlight on ::before: off everywhere */
+:is([data-slot="button"], [class~="border"][class*="rounded-[var(--control-radius)]"])::before,
+[data-slot="select-trigger"]::before,
+[data-slot="checkbox"]::before,
+[data-slot="radio"]::before,
+[data-slot="toggle-group"] [data-slot="toggle"]::before,
+:is([data-slot="menu-popup"], [data-slot="popover-popup"], [data-slot="select-popup"], [data-slot="combobox-popup"], [data-slot="autocomplete-popup"], [data-slot="preview-card-popup"]):not([class~="bg-transparent"])::before,
+[data-slot="sheet-popup"]::before,
+[data-slot="tooltip-popup"]::before,
+:is([data-slot="dialog-popup"], [data-slot="alert-dialog-popup"])::before,
+:is([data-slot="dialog-footer"], [data-slot="alert-dialog-footer"]) > [data-slot$="dialog-close"]::before,
+[data-slot="alert"]::before {
+  box-shadow: none !important;
+}
+
+/* Base (B): 4px corners, regular-weight label, quick color fades, no press-scale */
+/* [fragile] internal hook */
+:is([data-slot="button"], [class~="border"][class*="rounded-[var(--control-radius)]"]) {
+  border-radius: var(--w-radius) !important;
+  font-weight: 400 !important;
+  transition: background-color var(--w-fade), color var(--w-fade), border-color var(--w-fade), opacity var(--w-fade) !important;
+
+  &:active {
+    transform: none !important;
+  }
+
+  /* Standard Button (outline / secondary variants): subtle fill, elevation border with a darker bottom edge */
+  &:is([class~="border-input"], [class~="bg-secondary"]) {
+    background: var(--w-ctrl-fill) !important;
+    background-clip: padding-box !important;
+    color: var(--w-text) !important;
+    border: 1px solid var(--w-ctrl-stroke-top) !important;
+    border-bottom-color: var(--w-ctrl-stroke-bot) !important;
+    box-shadow: none !important;
+
+    &:hover {
+      background: var(--w-ctrl-fill-hover) !important;
+    }
+
+    &:is(:active, [data-pressed]) {
+      background: var(--w-ctrl-fill-pressed) !important;
+      color: var(--w-text-secondary) !important;
+      border-bottom-color: var(--w-ctrl-stroke-top) !important;
+    }
+
+    &:is(:disabled, [aria-disabled="true"]) {
+      background: var(--w-ctrl-fill-disabled) !important;
+      color: var(--w-text-disabled) !important;
+      border-color: var(--w-ctrl-stroke-top) !important;
+      opacity: 1 !important;
+    }
+  }
+
+  /* Accent Button (primary + destructive variants): system accent, like ContentDialog's default button */
+  &:is([class~="bg-primary"], [class~="bg-destructive"]) {
+    background: var(--w-accent) !important;
+    color: var(--w-on-accent) !important;
+    border: 1px solid var(--w-accent-stroke-top) !important;
+    border-bottom-color: var(--w-accent-stroke-bot) !important;
+    box-shadow: none !important;
+
+    &:hover {
+      background: var(--w-accent-hover) !important;
+    }
+
+    &:is(:active, [data-pressed]) {
+      background: var(--w-accent-pressed) !important;
+      color: color-mix(in srgb, var(--w-on-accent) 80%, transparent) !important;
+      border-color: transparent !important;
+    }
+
+    &:is(:disabled, [aria-disabled="true"]) {
+      background: var(--w-accent-disabled) !important;
+      color: var(--w-on-accent-disabled) !important;
+      border-color: transparent !important;
+      opacity: 1 !important;
+    }
+  }
+}
+
+/* Composer action buttons (send / queue / steer, comment submit, stop):
+   round pills in the app; in Fluent they are 4px-corner buttons that don't grow on hover */
+/* [fragile] internal hook */
+button[class~="rounded-full"] {
+  &:is([class~="bg-message-action"], [class~="bg-destructive/90"]) {
+    border-radius: var(--w-radius) !important;
+    scale: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+    transition: background-color var(--w-fade), color var(--w-fade) !important;
+  }
+
+  /* Send / queue = accent button */
+  &[class~="bg-message-action"] {
+    background: var(--w-accent) !important;
+    color: var(--w-on-accent) !important;
+    border: 1px solid var(--w-accent-stroke-top) !important;
+    border-bottom-color: var(--w-accent-stroke-bot) !important;
+
+    &:hover {
+      background: var(--w-accent-hover) !important;
+    }
+
+    &:active {
+      background: var(--w-accent-pressed) !important;
+      color: color-mix(in srgb, var(--w-on-accent) 80%, transparent) !important;
+    }
+
+    &:disabled {
+      background: var(--w-accent-disabled) !important;
+      color: var(--w-on-accent-disabled) !important;
+      border-color: transparent !important;
+    }
+  }
+
+  /* Stop = Fluent danger button (red palette: rest / shade10 / shade20, white icon) */
+  &[class~="bg-destructive/90"] {
+    background: var(--w-danger) !important;
+    color: #FFFFFF !important;
+    border: 1px solid var(--w-accent-stroke-top) !important;
+    border-bottom-color: rgba(0, 0, 0, .25) !important;
+
+    &:hover {
+      background: var(--w-danger-hover) !important;
+    }
+
+    &:active {
+      background: var(--w-danger-pressed) !important;
+      color: rgba(255, 255, 255, .8) !important;
+      border-color: transparent !important;
+    }
+
+    &:disabled {
+      background: var(--w-accent-disabled) !important;
+      color: var(--w-on-accent-disabled) !important;
+      border-color: transparent !important;
+      opacity: 1 !important;
+    }
+  }
+}
+
+/* Button group = SplitButton: one control with a divider. The halves keep their own hover and pressed fills,
+   but only the outer ends have corners and side edges. */
+/* [fragile] internal hook */
+[data-slot="group"]:not([data-orientation="vertical"]) {
+  & > :is([data-slot="button"], [class~="border"][class*="rounded-[var(--control-radius)]"]):has(~ [data-slot]) {
+    border-inline-end-width: 0 !important;
+    border-start-end-radius: 0 !important;
+    border-end-end-radius: 0 !important;
+  }
+
+  & > [data-slot] ~ :is([data-slot="button"], [class~="border"][class*="rounded-[var(--control-radius)]"]) {
+    border-start-start-radius: 0 !important;
+    border-end-start-radius: 0 !important;
+  }
+
+  & > [data-slot="separator"] + :is([data-slot="button"], [class~="border"][class*="rounded-[var(--control-radius)]"]) {
+    border-inline-start-width: 0 !important;
+  }
+
+  & > [data-slot="separator"] {
+    background: var(--w-ctrl-stroke-top) !important;
+  }
+
+  /* Accent SplitButton */
+  &:has(> [class~="bg-primary"]) > [data-slot="separator"] {
+    background: linear-gradient(rgba(0, 0, 0, .2157), rgba(0, 0, 0, .2157)), var(--w-accent) !important;
+  }
+
+  /* A half that shrinks on press would come apart from the other */
+  & > :is([data-slot="button"], [class~="border"][class*="rounded-[var(--control-radius)]"]):active {
+    scale: none !important;
+  }
+}
+
+/* Keyboard focus: WinUI double-stroke focus visual, drawn inside the edge so scroll containers can't clip it */
+/* [fragile] internal hook */
+:is([data-slot="button"], [class~="border"][class*="rounded-[var(--control-radius)]"]):focus-visible,
+button[class~="rounded-full"]:is([class~="bg-message-action"], [class~="bg-destructive/90"]):focus-visible,
+[data-thread-item] [role="button"]:focus-visible,
+[data-sidebar-row]:focus-visible,
+[data-slot="sidebar-menu-button"]:focus-visible,
+:is([data-slot="switch"], :has(> [data-slot="switch-thumb"])):focus-visible,
+[data-slot="select-trigger"]:focus-visible,
+:root [data-slot="composer-context-strip"] :is(button, [role="button"], [role="combobox"]):focus-visible {
+  outline: 2px solid var(--w-focus-outer) !important;
+  outline-offset: -2px !important;
+  box-shadow: inset 0 0 0 3px var(--w-focus-inner) !important;
+}
+
+
+/* ---------------------------------------------------------------------
+   6. Text input
+      TextBox: filled control whose bottom edge is a flat strip clipped by the
+      rounded corners (1px at rest, 2px accent on focus) - no focus ring.
+   --------------------------------------------------------------------- */
+
+[data-slot="input-group"],
+[data-slot="input-control"]:not([data-slot="input-group"] *),
+[data-slot="textarea-control"],
+[data-slot="number-field-group"],
+div:not([data-slot]):has(> svg + :is([data-slot="input-control"], input)),
+div[class~="relative"][class~="border-b"]:has(> [class~="absolute"][class~="left-0"] + * input) {
+  border-radius: var(--w-radius) !important;
+  background-color: var(--w-ctrl-fill) !important;
+  background-image: var(--w-field-line) !important;
+  background-size: 100% 1px !important;
+  background-position: bottom !important;
+  background-repeat: no-repeat !important;
+  background-origin: border-box !important;
+  background-clip: border-box !important;
+  border: 1px solid var(--w-ctrl-stroke) !important;
+  border-bottom-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  transition: background-color var(--w-fade) !important;
+}
+
+[data-slot="input-group"]:hover,
+[data-slot="input-control"]:not([data-slot="input-group"] *):hover,
+[data-slot="textarea-control"]:hover,
+[data-slot="number-field-group"]:hover,
+div:not([data-slot]):has(> svg + :is([data-slot="input-control"], input)):hover,
+div[class~="relative"][class~="border-b"]:has(> [class~="absolute"][class~="left-0"] + * input):hover {
+  background-color: var(--w-ctrl-fill-hover) !important;
+}
+
+[data-slot="input-group"]:focus-within,
+[data-slot="input-control"]:not([data-slot="input-group"] *):focus-within,
+[data-slot="textarea-control"]:focus-within,
+[data-slot="number-field-group"]:focus-within,
+div:not([data-slot]):has(> svg + :is([data-slot="input-control"], input)):focus-within,
+div[class~="relative"][class~="border-b"]:has(> [class~="absolute"][class~="left-0"] + * input):focus-within {
+  background-color: var(--w-ctrl-fill-active) !important;
+  background-image: var(--w-accent-line) !important;
+  background-size: 100% 2px !important;
+}
+
+/* Inner fields of a box are bare */
+[data-slot="input-group"] [data-slot="input-control"],
+[data-slot="input"],
+[data-slot="textarea"],
+[data-slot="number-field-input"] {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: inherit !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+[data-slot="input-control"]::before,
+[data-slot="input-control"]::after,
+[data-slot="textarea-control"]::before,
+[data-slot="textarea-control"]::after {
+  display: none !important;
+}
+
+/* Search rows (sidebar + settings search) = AutoSuggestBox:
+   the whole row (icon + field + clear / shortcut hint) is the box */
+div:not([data-slot]):has(> svg + :is([data-slot="input-control"], input)) {
+  padding-inline: 10px 4px !important;
+  gap: 4px !important;
+
+  & :is([data-slot="input-control"], input) {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  & input {
+    padding-inline-start: 11px !important;
+  }
+}
+
+/* Search row inside pickers and menus (project filter, menu search): the app pins the icon over an
+   underlined wrapper. The wrapper is the box here, so the app's underline goes and the icon sits inside.
+   In pickers the box spans the same width as the rows, with its icon and text in their columns. */
+/* [fragile] internal hook */
+[data-slot="combobox-popup"] > div:has(> div[class~="relative"][class~="border-b"] > [class~="absolute"][class~="left-0"] + * input) {
+  padding: 4px 4px 0 !important;
+}
+
+/* Long pickers (branches) use a virtualized list with an inset of its own and a reserved scrollbar lane;
+   without them its rows share the box's edges. */
+[data-slot="combobox-popup"] [class~="scrollbar-gutter-stable"][class~="ps-1"] {
+  padding: 0 !important;
+  scrollbar-gutter: auto !important;
+}
+
+[data-slot="menu-popup"] div:has(> div[class~="relative"][class~="border-b"] > [class~="absolute"][class~="left-0"] + * input) {
+  padding: 0 0 4px !important;
+}
+
+div[class~="relative"][class~="border-b"]:has(> [class~="absolute"][class~="left-0"] + * input) {
+  padding: 2px 4px 2px 7px !important;
+  margin-bottom: 0 !important;
+  translate: none !important;
+
+  & > [class~="absolute"][class~="left-0"] {
+    left: 7px !important;
+    top: calc(50% - 8px) !important;
+    z-index: 1;
+    color: var(--w-text-secondary) !important;
+  }
+
+  & [data-slot="input-control"] {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  & input {
+    padding-inline-start: 24px !important;
+  }
+}
+
+/* Chat composer: same edges as a TextBox (faint outline, strong 1px bottom line at rest,
+   2px accent on focus), 8px corners.
+   The visible card is painted by composer-shell::before; composer-host inside it can be
+   taller than the card, so the edges are drawn on the shell's card, not on the host
+   (except for the new-session composer, see below). */
+[data-slot="composer-shell"]::before,
+[data-slot="composer-shell"][data-context-row] [data-slot="composer-host"]::after {
+  border-radius: var(--w-radius-overlay) !important;
+  border: 1px solid var(--w-ctrl-stroke) !important;
+  border-bottom-color: transparent !important;
+  background-image: var(--w-field-line) !important;
+  background-size: 100% 1px !important;
+  background-position: bottom !important;
+  background-repeat: no-repeat !important;
+  background-origin: border-box !important;
+}
+
+[data-slot="composer-shell"]:focus-within::before,
+[data-slot="composer-shell"][data-context-row] [data-slot="composer-host"]:focus-within::after {
+  background-image: var(--w-accent-line) !important;
+  background-size: 100% 2px !important;
+}
+
+/* The host keeps no edges of its own (its outline would double the card's) */
+[data-slot="composer-host"] {
+  border-radius: var(--w-radius-overlay) !important;
+  box-shadow: none !important;
+
+  &::after {
+    display: none !important;
+  }
+}
+
+/* New-session composer (card with a context row under it): the app hides the shell's card here
+   and paints the glass on composer-host::before with 16px corners, so the TextBox edges above
+   never show. Give that glass the same 8px corners and draw the TextBox edges on the host's
+   own ::after instead. */
+[data-slot="composer-shell"][data-context-row] [data-slot="composer-host"] {
+  &::before {
+    border-radius: var(--w-radius-overlay) !important;
+  }
+
+  &::after {
+    display: block !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Context row under the composer (environment / checkout / branch / access):
+   no slab of its own, just a row of subtle buttons on the page, like a CommandBar */
+[data-slot="composer-context-strip"] {
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 4px 0 0 !important;
+  gap: 2px !important;
+  color: var(--w-text-secondary) !important;
+}
+
+:root [data-slot="composer-context-strip"] :is(button, [role="button"], [role="combobox"]) {
+  min-height: 24px !important;
+  padding-inline: 8px !important;
+  gap: 6px !important;
+  border-radius: var(--w-radius) !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--w-text-secondary) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  transition: background-color var(--w-fade), color var(--w-fade) !important;
+
+  &:hover {
+    background: var(--w-subtle-hover) !important;
+    color: var(--w-text) !important;
+  }
+
+  &:is(:active, [data-pressed], [data-popup-open], [aria-expanded="true"]) {
+    background: var(--w-subtle-pressed) !important;
+    color: var(--w-text-secondary) !important;
+  }
+
+  &:is(:disabled, [aria-disabled="true"]) {
+    background: transparent !important;
+    color: var(--w-text-disabled) !important;
+    opacity: 1 !important;
+  }
+}
+
+[data-slot="composer-context-strip"] svg {
+  width: 14px !important;
+  height: 14px !important;
+  color: inherit !important;
+}
+
+[data-slot="composer-context-strip"] [data-slot="separator"] {
+  background: var(--w-divider) !important;
+}
+
+
+/* ---------------------------------------------------------------------
+   7. Selection controls
+   --------------------------------------------------------------------- */
+
+/* ToggleSwitch: 40x20 pill. Off = outlined + secondary knob; on = accent + on-accent knob;
+   mixed = outlined, knob centered. Knob grows on hover.
+   The track is matched as the knob's parent because tooltip wrappers can replace data-slot.
+   The knob carries .bg-background, so the rules that clear .bg-background surfaces exempt it. */
+[data-slot="switch-thumb"] {
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+  background: var(--w-text-secondary) !important;
+  box-shadow: none !important;
+  scale: none !important;
+  transform: none !important;
+  translate: 3px 0 !important;
+  transition: translate .15s cubic-bezier(0, 0, 0, 1), width .1s, height .1s !important;
+}
+
+:is([data-slot="switch"], :has(> [data-slot="switch-thumb"])) {
+  width: 40px !important;
+  height: 20px !important;
+  padding: 0 !important;
+  border-radius: 10px !important;
+  background: var(--w-ctrl-alt-fill) !important;
+  border: 1px solid var(--w-strong-stroke) !important;
+  box-shadow: none !important;
+  transition: background-color var(--w-fade), border-color var(--w-fade) !important;
+
+  &:hover {
+    background: var(--w-ctrl-alt-fill-hover) !important;
+  }
+
+  &[data-checked] {
+    background: var(--w-accent) !important;
+    border-color: var(--w-accent) !important;
+
+    &:hover {
+      background: var(--w-accent-hover) !important;
+      border-color: transparent !important;
+    }
+  }
+
+  &:hover [data-slot="switch-thumb"] {
+    width: 14px !important;
+    height: 14px !important;
+    translate: 2px 0 !important;
+  }
+
+  :is(&[data-checked] [data-slot="switch-thumb"], [data-slot="switch-thumb"][data-checked]) {
+    translate: 23px 0 !important;
+    background: var(--w-on-accent) !important;
+  }
+
+  &[data-checked]:hover [data-slot="switch-thumb"] {
+    translate: 22px 0 !important;
+  }
+
+  /* Mixed (e.g. a setting that differs across environments) - must stay after the checked rules */
+  &[data-mixed] {
+    background: var(--w-ctrl-alt-fill) !important;
+    border-color: var(--w-strong-stroke) !important;
+
+    &:hover {
+      background: var(--w-ctrl-alt-fill-hover) !important;
+    }
+
+    & [data-slot="switch-thumb"] {
+      translate: 13px 0 !important;
+      background: var(--w-text-secondary) !important;
+      opacity: 1 !important;
+    }
+
+    &:hover [data-slot="switch-thumb"] {
+      translate: 12px 0 !important;
+    }
+  }
+
+  /* Disabled (e.g. unavailable providers): WinUI disabled colors, no hover response */
+  &:is([data-disabled], :disabled, [aria-disabled="true"]) {
+    background: transparent !important;
+    border-color: var(--w-strong-stroke-disabled) !important;
+    opacity: 1 !important;
+    cursor: default !important;
+
+    & [data-slot="switch-thumb"] {
+      width: 12px !important;
+      height: 12px !important;
+      translate: 3px 0 !important;
+      background: var(--w-text-disabled) !important;
+    }
+
+    &[data-checked] {
+      background: var(--w-accent-disabled) !important;
+      border-color: transparent !important;
+
+      & [data-slot="switch-thumb"] {
+        translate: 23px 0 !important;
+        background: var(--w-on-accent-disabled) !important;
+      }
+    }
+  }
+}
+
+/* CheckBox and RadioButton: 20px, strong outline when off, accent when on */
+[data-slot="checkbox"],
+[data-slot="radio"] {
+  width: 20px !important;
+  height: 20px !important;
+  background: var(--w-ctrl-alt-fill) !important;
+  border: 1px solid var(--w-strong-stroke) !important;
+  box-shadow: none !important;
+}
+
+/* CheckBox: 4px corners, accent fill when on */
+[data-slot="checkbox"] {
+  border-radius: var(--w-radius) !important;
+}
+
+[data-slot="checkbox"]:hover,
+[data-slot="radio"]:hover {
+  background: var(--w-ctrl-alt-fill-hover) !important;
+}
+
+[data-slot="checkbox"]:is([data-checked], [data-indeterminate]) {
+  background: var(--w-accent) !important;
+  border-color: var(--w-accent) !important;
+}
+
+[data-slot="checkbox-indicator"] {
+  border-radius: var(--w-radius) !important;
+  background: var(--w-accent) !important;
+  color: var(--w-on-accent) !important;
+}
+
+/* RadioButton: circle; checked = accent with an on-accent dot that grows on hover */
+[data-slot="radio"] {
+  border-radius: 50% !important;
+
+  &[data-checked] {
+    background: var(--w-accent) !important;
+    border-color: var(--w-accent) !important;
+  }
+}
+
+[data-slot="radio-indicator"] {
+  inset: -1px !important;
+  width: auto !important;
+  height: auto !important;
+  background: var(--w-accent) !important;
+
+  &::before {
+    width: 10px !important;
+    height: 10px !important;
+    background: var(--w-on-accent) !important;
+    transition: width .1s, height .1s;
+  }
+}
+
+[data-slot="radio"]:hover [data-slot="radio-indicator"]::before {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+/* Slider (settings): 4px track filled with accent up to the thumb;
+   20px thumb with an accent dot that grows on hover and shrinks while dragging */
+/* [fragile] internal hook */
+.settings-slider {
+  height: 32px !important;
+
+  &::-webkit-slider-runnable-track {
+    height: 4px !important;
+    border-radius: 2px !important;
+    box-shadow: none !important;
+    background: linear-gradient(to right,
+    var(--w-accent) 0 var(--settings-slider-fill-position, 0%),
+    var(--w-strong-stroke) var(--settings-slider-fill-position, 0%) 100%) !important;
+  }
+
+  &::-webkit-slider-thumb {
+    box-sizing: border-box !important;
+    width: 20px !important;
+    height: 20px !important;
+    margin-top: -8px !important;
+    border: 1px solid var(--w-ctrl-stroke-top) !important;
+    border-radius: 50% !important;
+    background: radial-gradient(circle, var(--w-accent) 0 6px, var(--w-thumb-fill) 6.5px) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .12) !important;
+    transform: none !important;
+  }
+
+  &:hover::-webkit-slider-thumb {
+    background: radial-gradient(circle, var(--w-accent) 0 7px, var(--w-thumb-fill) 7.5px) !important;
+  }
+
+  &:active::-webkit-slider-thumb {
+    background: radial-gradient(circle, var(--w-accent) 0 5px, var(--w-thumb-fill) 5.5px) !important;
+  }
+
+  &:focus-visible {
+    outline: none !important;
+
+    &::-webkit-slider-thumb {
+      outline: 2px solid var(--w-focus-outer) !important;
+      outline-offset: 1px !important;
+    }
+  }
+}
+
+/* Slider value readout: plain secondary text, not a pill */
+/* [fragile] internal hook */
+div:has(> .settings-slider) > output {
+  background: transparent !important;
+  padding-inline: 0 !important;
+  font-family: var(--win-font) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: var(--w-text-secondary) !important;
+  text-align: end !important;
+}
+
+
+/* ---------------------------------------------------------------------
+   8. ComboBox, ToggleButton, Segmented
+   --------------------------------------------------------------------- */
+
+/* ComboBox trigger: standard Button look */
+[data-slot="select-trigger"] {
+  border-radius: var(--w-radius) !important;
+  background: var(--w-ctrl-fill) !important;
+  background-clip: padding-box !important;
+  color: var(--w-text) !important;
+  border: 1px solid var(--w-ctrl-stroke-top) !important;
+  border-bottom-color: var(--w-ctrl-stroke-bot) !important;
+  box-shadow: none !important;
+
+  &:hover {
+    background: var(--w-ctrl-fill-hover) !important;
+  }
+
+  &:is(:active, [data-popup-open]) {
+    background: var(--w-ctrl-fill-pressed) !important;
+  }
+}
+
+/* ToggleButton: checked = accent */
+[data-slot="toggle"]:not([data-slot="toggle-group"] *)[data-pressed] {
+  background: var(--w-accent) !important;
+  color: var(--w-on-accent) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Toggle group = Segmented control: selected segment is a filled card with an accent pill */
+[data-slot="toggle-group"] {
+  border-radius: 6px !important;
+  background: var(--w-ctrl-alt-fill) !important;
+  border: 1px solid var(--w-ctrl-stroke) !important;
+  box-shadow: none !important;
+
+  & [data-slot="toggle"] {
+    border-radius: var(--w-radius) !important;
+    background-color: transparent !important;
+    color: var(--w-text-secondary) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+
+    &:hover {
+      background-color: var(--w-subtle-hover) !important;
+      color: var(--w-text) !important;
+    }
+
+    &[data-pressed] {
+      background-color: var(--w-ctrl-fill) !important;
+      background-image: var(--w-accent-line) !important;
+      background-size: 16px 3px !important;
+      background-position: center bottom 2px !important;
+      background-repeat: no-repeat !important;
+      color: var(--w-text) !important;
+      border: 1px solid var(--w-ctrl-stroke-top) !important;
+    }
+  }
+}
+
+
+/* ---------------------------------------------------------------------
+   9. Flyouts: menus, popovers, tooltips, toasts, command palette, sheets
+   --------------------------------------------------------------------- */
+
+/* MenuFlyout / ComboBox dropdown / popover: solid fill, 8px corners, soft shadow.
+   Popovers that are only invisible containers (bg-transparent) are left alone. */
+/* [fragile] internal hook */
+:is([data-slot="menu-popup"], [data-slot="popover-popup"], [data-slot="select-popup"], [data-slot="combobox-popup"], [data-slot="autocomplete-popup"], [data-slot="preview-card-popup"]):not([class~="bg-transparent"]),
+[data-slot="toast-popup"],
+[data-slot="command-dialog-popup"],
+[data-thread-details-card] {
+  border-radius: var(--w-radius-overlay) !important;
+  background: var(--w-flyout-fill) !important;
+  border: 1px solid var(--w-flyout-stroke) !important;
+  box-shadow: var(--w-flyout-shadow) !important;
+  color: var(--w-text) !important;
+}
+
+/* An open submenu's trigger stays highlighted */
+[data-slot="menu-sub-trigger"][data-popup-open] {
+  background: var(--w-subtle-hover) !important;
+  color: var(--w-text) !important;
+}
+
+/* Menu & list items: 32px rows, 4px corners, subtle-fill hover, regular 14px text */
+:is([data-slot="menu-item"], [data-slot="menu-checkbox-item"], [data-slot="menu-radio-item"], [data-slot="menu-sub-trigger"], [data-slot="select-item"], [data-slot="combobox-item"], [data-slot="autocomplete-item"], [data-slot="command-item"]) {
+  min-height: 32px !important;
+  border-radius: var(--w-radius) !important;
+  font-size: 14px !important;
+  color: var(--w-text) !important;
+  transition: background-color var(--w-fade) !important;
+
+  &:is([data-highlighted], :hover) {
+    background: var(--w-subtle-hover) !important;
+    color: var(--w-text) !important;
+  }
+
+  &:active {
+    background: var(--w-subtle-pressed) !important;
+    color: var(--w-text-secondary) !important;
+  }
+
+  &:is([data-selected], [data-checked], [data-active]):not([data-highlighted]) {
+    background: var(--w-subtle-hover) !important;
+  }
+}
+
+/* Check badge on a picked project's icon (the app's --primary is the neutral messageAction role) */
+/* [fragile] internal hook */
+[data-slot="combobox-item"] span[class~="bg-primary"][class~="rounded-full"] {
+  background: var(--w-accent) !important;
+
+  & > svg {
+    color: var(--w-on-accent) !important;
+  }
+}
+
+/* ComboBox: the selected item gets the accent pill */
+:is([data-slot="select-item"], [data-slot="combobox-item"])[data-selected] {
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 3px;
+    height: 16px;
+    margin-top: -8px;
+    border-radius: 2px;
+    background: var(--w-accent);
+  }
+}
+
+:is([data-slot="menu-label"], [data-slot="command-group-label"], [data-slot="select-group-label"]) {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--w-text-secondary) !important;
+}
+
+[data-slot="menu-separator"] {
+  height: 1px !important;
+  margin: 2px -4px !important;
+  background: var(--w-divider) !important;
+}
+
+[data-slot="separator"] {
+  background: var(--w-divider) !important;
+}
+
+/* Keyboard accelerators: subtle keycap by default; plain secondary text inside menus
+   (like MenuFlyoutItem.KeyboardAcceleratorText) */
+[data-slot="kbd"] {
+  border-radius: var(--w-radius) !important;
+  background: var(--w-ctrl-fill) !important;
+  border: 1px solid var(--w-ctrl-stroke-top) !important;
+  border-bottom-color: var(--w-ctrl-stroke-bot) !important;
+  color: var(--w-text-secondary) !important;
+  font-weight: 400 !important;
+}
+
+:is([data-slot="menu-shortcut"], [data-slot="command-shortcut"]),
+:is([data-slot="menu-popup"], [data-slot="command-dialog-popup"]) [data-slot="kbd"] {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: var(--w-text-secondary) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  letter-spacing: normal !important;
+}
+
+/* Command palette: dialog-level stroke & shadow */
+[data-slot="command-dialog-popup"] {
+  border-color: var(--w-dialog-stroke) !important;
+  box-shadow: var(--w-dialog-shadow) !important;
+}
+
+/* Its search field is a TextBox like the others. The app clears the fill and outline with important
+   utilities, and only an important rule in an earlier cascade layer outranks those. */
+/* [fragile] internal hook (the app's "base" layer) */
+@layer base {
+  [data-slot="command-dialog-popup"] [data-slot="input-control"] {
+    background-color: var(--w-ctrl-fill) !important;
+    border-color: var(--w-ctrl-stroke) !important;
+    border-bottom-color: transparent !important;
+
+    &:hover {
+      background-color: var(--w-ctrl-fill-hover) !important;
+    }
+
+    &:focus-within {
+      background-color: var(--w-ctrl-fill-active) !important;
+    }
+  }
+}
+
+[data-slot="command-footer"] {
+  border-radius: 0 !important; /* the panel clips it; the app's rounder corners left gaps */
+  background: var(--w-dialog-footer) !important;
+  border-top: 1px solid var(--w-card-stroke) !important;
+}
+
+/* Side sheets */
+[data-slot="sheet-popup"] {
+  background: var(--w-dialog-top) !important;
+  border-color: var(--w-dialog-stroke) !important;
+  box-shadow: var(--w-dialog-shadow) !important;
+}
+
+/* ToolTip: 4px corners, 12px text, Windows padding */
+[data-slot="tooltip-popup"] {
+  border-radius: var(--w-radius) !important;
+  background: var(--w-flyout-fill) !important;
+  border: 1px solid var(--w-flyout-stroke) !important;
+  box-shadow: var(--w-tip-shadow) !important;
+  color: var(--w-text) !important;
+
+  /* [fragile] internal hook */
+  &:not([class~="font-mono"]) {
+    font-size: 12px !important;
+    line-height: 16px !important;
+  }
+}
+
+[data-slot="tooltip-viewport"] {
+  padding: 6px 9px 8px !important;
+}
+
+/* Toasts */
+[data-slot="toast-title"] {
+  font-weight: 600 !important;
+}
+
+[data-slot="toast-description"] {
+  color: var(--w-text-secondary) !important;
+}
+
+/* Smoke behind modal surfaces */
+:is([data-slot="dialog-backdrop"], [data-slot="alert-dialog-backdrop"], [data-slot="command-dialog-backdrop"], [data-slot="sheet-backdrop"]) {
+  background: rgba(0, 0, 0, .3) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+
+/* ---------------------------------------------------------------------
+   10. ContentDialog
+       Lighter content area, darker command bar, equal-width buttons, 20px semibold title.
+   --------------------------------------------------------------------- */
+
+:is([data-slot="dialog-popup"], [data-slot="alert-dialog-popup"]) {
+  overflow: hidden;
+  border-radius: var(--w-radius-overlay) !important;
+  background: var(--w-dialog-top) !important;
+  border: 1px solid var(--w-dialog-stroke) !important;
+  box-shadow: var(--w-dialog-shadow) !important;
+}
+
+:is([data-slot="dialog-header"], [data-slot="alert-dialog-header"]) {
+  padding-bottom: 20px !important;
+}
+
+:is([data-slot="dialog-title"], [data-slot="alert-dialog-title"]) {
+  font-size: 20px !important;
+  line-height: 28px !important;
+  font-weight: 600 !important;
+  color: var(--w-text) !important;
+}
+
+:is([data-slot="dialog-description"], [data-slot="alert-dialog-description"]) {
+  font-size: 14px !important;
+  line-height: 20px !important;
+  color: var(--w-text) !important;
+}
+
+:is([data-slot="dialog-footer"], [data-slot="alert-dialog-footer"]) {
+  margin: 0 !important;
+  border-radius: 0 !important; /* the dialog clips it */
+  padding: 16px 24px !important;
+  background: var(--w-dialog-footer) !important;
+  border-top: 1px solid var(--w-card-stroke) !important;
+
+  /* Equal-width buttons, only when the footer holds nothing but buttons.
+     Buttons share the row equally but never shrink below their label; if the labels
+     don't fit on one row they wrap instead of clipping. */
+  /* [fragile] internal hook */
+  &:not(:has(> :not(:is([data-slot="button"], [class~="border"][class*="rounded-[var(--control-radius)]"]), [data-slot$="dialog-close"]))) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: stretch !important;
+    gap: 8px !important;
+
+    & > * {
+      flex: 1 1 0 !important;
+      width: auto !important;
+      min-width: max-content !important;
+      margin: 0 !important;
+      padding-inline: 12px !important;
+    }
+  }
+
+  /* [fragile] internal hook */
+  & > :is([data-slot="button"], [class~="border"][class*="rounded-[var(--control-radius)]"], [data-slot$="dialog-close"]) {
+    height: 32px !important;
+    min-height: 32px !important;
+    padding-block: 0 !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+  }
+
+  /* Close / Cancel renders outside the Button slot: give it the standard Button look */
+  /* [fragile] internal hook */
+  & > [data-slot$="dialog-close"]:not([class~="bg-primary"], [class~="bg-destructive"]) {
+    border-radius: var(--w-radius) !important;
+    background: var(--w-ctrl-fill) !important;
+    background-clip: padding-box !important;
+    color: var(--w-text) !important;
+    border: 1px solid var(--w-ctrl-stroke-top) !important;
+    border-bottom-color: var(--w-ctrl-stroke-bot) !important;
+    box-shadow: none !important;
+
+    &:hover {
+      background: var(--w-ctrl-fill-hover) !important;
+    }
+
+    &:active {
+      background: var(--w-ctrl-fill-pressed) !important;
+      color: var(--w-text-secondary) !important;
+    }
+  }
+}
+
+
+/* ---------------------------------------------------------------------
+   11. Status: badges (Fluent tags) & alerts (InfoBar)
+   --------------------------------------------------------------------- */
+
+[data-slot="badge"] {
+  border-radius: var(--w-radius) !important;
+}
+
+[data-slot="alert"] {
+  border-radius: var(--w-radius) !important;
+  background: var(--w-card-fill-2) !important;
+  border: 1px solid var(--w-card-stroke) !important;
+  box-shadow: none !important;
+  color: var(--w-text) !important;
+
+  &[data-variant="success"] {
+    background: var(--w-success-bg) !important;
+  }
+
+  &[data-variant="warning"] {
+    background: var(--w-caution-bg) !important;
+  }
+
+  &:is([data-variant="error"], [data-variant="destructive"]) {
+    background: var(--w-critical-bg) !important;
+  }
+
+  &[data-variant="success"] svg {
+    color: var(--w-success) !important;
+  }
+
+  &[data-variant="warning"] svg {
+    color: var(--w-caution) !important;
+  }
+
+  &:is([data-variant="error"], [data-variant="destructive"]) svg {
+    color: var(--w-critical) !important;
+  }
+
+  &[data-variant="info"] svg {
+    color: var(--w-accent) !important;
+  }
+}
+
+[data-slot="alert-title"] {
+  font-weight: 600 !important;
+}
+
+
+/* ---------------------------------------------------------------------
+   12. Settings cards & tables
+   --------------------------------------------------------------------- */
+
+/* SettingsCard groups */
+[data-slot="settings-group"] {
+  border-radius: var(--w-radius-overlay) !important;
+  background: var(--w-card-fill) !important;
+  border: 1px solid var(--w-card-stroke) !important;
+  box-shadow: none !important;
+
+  & [data-slot="settings-row"] + [data-slot="settings-row"] {
+    border-top-color: var(--w-divider) !important;
+  }
+}
+
+/* Thread details panel. With room it is always visible (inline): a card on the page, like the Settings
+   cards, painted over the layer so chat text can't show through. Without room it opens on demand
+   (popover) and keeps the flyout look from section 9. The rows are the same in both. */
+/* [fragile] undocumented data attributes */
+[data-thread-details-panel="inline"] [data-thread-details-card] {
+  background: linear-gradient(var(--w-card-fill), var(--w-card-fill)), var(--w-content-layer) !important;
+  border-color: var(--w-card-stroke) !important;
+  box-shadow: none !important;
+}
+
+/* The dropdown's wrapper scrolls and would cut the shadow off; the card scrolls by itself */
+/* [fragile] undocumented data attributes */
+[data-slot="popover-viewport"]:has([data-thread-details-panel="popover"]) {
+  overflow: visible !important;
+}
+
+[data-thread-details-card] {
+  & section {
+    border-color: var(--w-divider) !important;
+  }
+
+  & :is(button, [role="group"]) {
+    border-radius: var(--w-radius) !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+  }
+
+  /* Split rows: the label and chevron halves share the row's corners */
+  & :is([data-slot="select-label"], [role="group"] > button:first-child) {
+    border-radius: var(--w-radius) 0 0 var(--w-radius) !important;
+  }
+
+  & :is([data-slot="select-icon"], [role="group"] > button:last-child) {
+    border-radius: 0 var(--w-radius) var(--w-radius) 0 !important;
+  }
+}
+
+/* Row hover: the app stacks two important fills on split rows, so this needs the earlier layer too
+   (see the command palette). The hovered half ends up slightly brighter, like a SplitButton. */
+/* [fragile] internal hook (the app's "base" layer) */
+@layer base {
+  [data-thread-details-card] :is(button:not(:disabled), [role="group"], [data-slot="select-label"], [data-slot="select-icon"]):hover {
+    background-color: var(--w-subtle-hover) !important;
+  }
+}
+
+/* Tables: secondary header text, divider rows, subtle hover */
+[data-slot="table-head"] {
+  color: var(--w-text-secondary) !important;
+  font-weight: 600 !important;
+}
+
+:is([data-slot="table-row"], [data-slot="table-header"]) {
+  border-color: var(--w-divider) !important;
+}
+
+[data-slot="table-body"] [data-slot="table-row"]:hover {
+  background: var(--w-subtle-hover) !important;
+}
+
+
+/* ---------------------------------------------------------------------
+   13. Chat content
+   --------------------------------------------------------------------- */
+
+/* Cards, not bubbles */
+[data-user-message-bubble] {
+  border-radius: var(--w-radius-overlay) !important;
+  border: 1px solid var(--w-layer-stroke) !important;
+}
+
+[data-slot="context-chip"],
+.chat-markdown-codeblock {
+  border-radius: var(--w-radius-overlay) !important;
+}
+
+.chat-markdown :not(pre) > code {
+  border-radius: var(--w-radius) !important;
+}
+
+/* Hyperlinks: AccentTextFillColor, underline on hover */
+.chat-markdown a {
+  color: var(--w-accent-text) !important;
+  text-decoration: none !important;
+
+  &:hover {
+    text-decoration: underline !important;
+  }
+}
+
+
+/* ---------------------------------------------------------------------
+   14. Scrollbars & misc
+   --------------------------------------------------------------------- */
+
+/* Native scrollbars: thin rounded thumbs that thicken on hover */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--w-scroll);
+  background-clip: content-box;
+  border: 4px solid transparent;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  border-width: 3px;
+}
+
+/* Overlay scrollbars */
+[data-slot="scroll-area-thumb"] {
+  background: var(--w-scroll) !important;
+  border-radius: 999px !important;
+}
+
+/* Loading placeholders */
+[data-slot="skeleton"] {
+  background-color: var(--w-ctrl-alt-fill-hover) !important;
+}
+
+/* Overlay scrollbar track: appears on hover, like WinUI's expanded ScrollBar */
+[data-slot="scroll-area-scrollbar"] {
+  border-radius: 999px !important;
+  transition: background-color var(--w-fade) !important;
+
+  &:hover {
+    background: var(--w-subtle-hover) !important;
+  }
+}
+
+/* Project monograms: Windows app-tile corners, Segoe UI Variable semibold initials */
+[data-slot="project-monogram"] svg {
+  border-radius: var(--w-radius) !important;
+
+  & text {
+    font-family: var(--win-font) !important;
+    font-weight: 600 !important;
+  }
+}
+
+/* Work rows in the chat ("Worked for ...", tool-call groups): Expander-like headers,
+   4px corners with a subtle hover fill */
+[data-timeline-row-kind="work"] :is([data-slot="collapsible-trigger"], button) {
+  border-radius: var(--w-radius) !important;
+  transition: background-color var(--w-fade) !important;
+
+  &:hover {
+    background-color: var(--w-subtle-hover) !important;
+  }
+}
