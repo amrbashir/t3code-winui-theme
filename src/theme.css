@@ -72,7 +72,6 @@
   --w-flyout-fill: #FCFCFC;
   --w-dialog-top: #FFFFFF;
   --w-dialog-footer: #F3F3F3;
-  --w-dialog-stroke-raw: rgba(117, 117, 117, .4);
   --w-flyout-stroke-raw: rgba(0, 0, 0, .0578);
 
   /* Text */
@@ -121,13 +120,6 @@
   --w-flyout-shadow: 0 8px 16px rgba(0, 0, 0, .14);
   --w-dialog-shadow: 0 32px 64px rgba(0, 0, 0, .1876), 0 2px 21px rgba(0, 0, 0, .1474);
   --w-tip-shadow: 0 4px 8px rgba(0, 0, 0, .14);
-
-  /* [fragile] App variables. The sidebar sits on the base color and rows use translucent subtle fills;
-     roles can only hold opaque colors, so these override the sidebar* roles. */
-  --sidebar: transparent !important;
-  --sidebar-row-hover: rgba(0, 0, 0, .0373) !important;
-  --sidebar-row-active: rgba(0, 0, 0, .0241) !important;
-  --sidebar-row-selected: rgba(0, 0, 0, .0373) !important;
 }
 
 .dark {
@@ -146,7 +138,6 @@
   --w-flyout-fill: #2C2C2C;
   --w-dialog-top: #2B2B2B;
   --w-dialog-footer: #202020;
-  --w-dialog-stroke-raw: rgba(117, 117, 117, .4);
   --w-flyout-stroke-raw: rgba(0, 0, 0, .2);
 
   /* Text */
@@ -195,12 +186,19 @@
   --w-flyout-shadow: 0 8px 16px rgba(0, 0, 0, .26);
   --w-dialog-shadow: 0 32px 64px rgba(0, 0, 0, .37), 0 2px 21px rgba(0, 0, 0, .37);
   --w-tip-shadow: 0 4px 8px rgba(0, 0, 0, .26);
+}
 
-  /* [fragile] App variables (see note in the light block) */
+/* Shared defaults, with the same specificity as the appearance-specific tokens. */
+:root:not(.dark),
+.dark {
+  --w-dialog-stroke-raw: rgba(117, 117, 117, .4);
+
+  /* [fragile] The sidebar sits on the base color; its rows use the theme's subtle fills.
+     Roles only accept opaque colors, so these app variables override the sidebar* roles. */
   --sidebar: transparent !important;
-  --sidebar-row-hover: rgba(255, 255, 255, .0605) !important;
-  --sidebar-row-active: rgba(255, 255, 255, .0419) !important;
-  --sidebar-row-selected: rgba(255, 255, 255, .0605) !important;
+  --sidebar-row-hover: var(--w-subtle-hover) !important;
+  --sidebar-row-active: var(--w-subtle-pressed) !important;
+  --sidebar-row-selected: var(--w-subtle-hover) !important;
 }
 
 /* Derived tokens. Declared on both selectors so they resolve with the active appearance. */
@@ -1230,13 +1228,16 @@ div[class~="relative"][class~="border-b"]:has(> [class~="absolute"][class~="left
 }
 
 /* CheckBox and RadioButton: 20px, strong outline when off, accent when on */
-[data-slot="checkbox"],
-[data-slot="radio"] {
+:is([data-slot="checkbox"], [data-slot="radio"]) {
   width: 20px !important;
   height: 20px !important;
   background: var(--w-ctrl-alt-fill) !important;
   border: 1px solid var(--w-strong-stroke) !important;
   box-shadow: none !important;
+
+  &:hover {
+    background: var(--w-ctrl-alt-fill-hover) !important;
+  }
 }
 
 /* CheckBox: 4px corners, accent fill when on */
@@ -1244,12 +1245,8 @@ div[class~="relative"][class~="border-b"]:has(> [class~="absolute"][class~="left
   border-radius: var(--w-radius) !important;
 }
 
-[data-slot="checkbox"]:hover,
-[data-slot="radio"]:hover {
-  background: var(--w-ctrl-alt-fill-hover) !important;
-}
-
-[data-slot="checkbox"]:is([data-checked], [data-indeterminate]) {
+[data-slot="checkbox"]:is([data-checked], [data-indeterminate]),
+[data-slot="radio"][data-checked] {
   background: var(--w-accent) !important;
   border-color: var(--w-accent) !important;
 }
@@ -1263,11 +1260,6 @@ div[class~="relative"][class~="border-b"]:has(> [class~="absolute"][class~="left
 /* RadioButton: circle; checked = accent with an on-accent dot that grows on hover */
 [data-slot="radio"] {
   border-radius: 50% !important;
-
-  &[data-checked] {
-    background: var(--w-accent) !important;
-    border-color: var(--w-accent) !important;
-  }
 }
 
 [data-slot="radio-indicator"] {
@@ -1648,8 +1640,9 @@ div:has(> .settings-slider) > output {
   padding: 6px 9px 8px !important;
 }
 
-/* Toasts */
-[data-slot="toast-title"] {
+/* Toasts and InfoBar titles use the same emphasis. */
+[data-slot="toast-title"],
+[data-slot="alert-title"] {
   font-weight: 600 !important;
 }
 
@@ -1797,11 +1790,6 @@ div:has(> .settings-slider) > output {
     color: var(--w-accent) !important;
   }
 }
-
-[data-slot="alert-title"] {
-  font-weight: 600 !important;
-}
-
 
 /* ---------------------------------------------------------------------
    12. Settings cards & tables
