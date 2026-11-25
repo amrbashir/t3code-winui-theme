@@ -1383,7 +1383,7 @@ div:has(> .settings-slider) > output {
   box-shadow: none !important;
 }
 
-/* Toggle group = Segmented control: selected segment is a filled card with an accent pill */
+/* Toggle group = Segmented control: selected segment has a translucent accent fill */
 [data-slot="toggle-group"] {
   border-radius: 6px !important;
   background: var(--w-ctrl-alt-fill) !important;
@@ -1403,21 +1403,12 @@ div:has(> .settings-slider) > output {
     }
 
     &[data-pressed] {
-      background-color: var(--w-ctrl-fill) !important;
-      background-image: var(--w-accent-line) !important;
-      background-size: 16px 3px !important;
-      background-position: center bottom 2px !important;
-      background-repeat: no-repeat !important;
+      background-color: color-mix(in srgb, var(--w-accent) 20%, transparent) !important;
+      background-image: none !important;
       color: var(--w-text) !important;
       border: 1px solid var(--w-ctrl-stroke-top) !important;
     }
   }
-}
-
-/* Diff layout keeps the selected card fill without the accent underline. */
-/* [fragile] accessible label from DiffPanel */
-[data-slot="toggle-group"][aria-label="Diff layout"] [data-slot="toggle"][data-pressed] {
-  background-image: none !important;
 }
 
 
