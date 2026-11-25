@@ -966,6 +966,13 @@ div[class~="relative"][class~="border-b"]:has(> [class~="absolute"][class~="left
   display: none !important;
 }
 
+/* Thread Find floats over messages: back the translucent TextBox fills with a solid surface. */
+/* [fragile] internal hook from ThreadFindBar */
+[data-thread-find-bar] {
+  background: var(--w-flyout-fill) !important;
+  border-radius: var(--w-radius) !important;
+}
+
 /* Search rows (sidebar + settings search) = AutoSuggestBox:
    the whole row (icon + field + clear / shortcut hint) is the box */
 div:not([data-slot]):has(> svg + :is([data-slot="input-control"], input)) {
