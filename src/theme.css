@@ -1969,3 +1969,19 @@ div:has(> .settings-slider) > output {
     background-color: var(--w-subtle-hover) !important;
   }
 }
+
+/* Environment map: primary is the neutral message-action color in this theme.
+   Keep SVG link previews and their circular handles visible on the canvas. */
+/* [fragile] internal hooks */
+svg [class~="text-primary"],
+svg [stroke="var(--primary)"],
+svg [stroke="var(--color-primary)"],
+svg[class~="stroke-primary"],
+svg [class~="stroke-primary"] {
+  stroke: var(--w-accent) !important;
+}
+
+button[class~="rounded-full"][class~="bg-primary"] {
+  background: var(--w-accent) !important;
+  color: var(--w-on-accent) !important;
+}
