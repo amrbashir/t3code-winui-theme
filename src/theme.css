@@ -880,6 +880,7 @@ button[class~="rounded-full"] {
 /* Keyboard focus: WinUI double-stroke focus visual, drawn inside the edge so scroll containers can't clip it */
 /* [fragile] internal hook */
 :is([data-slot="button"], [class~="border"][class*="rounded-[var(--control-radius)]"]):focus-visible,
+[data-testid="project-content-search"] button[aria-pressed]:focus-visible,
 button[class~="rounded-full"]:is([class~="bg-message-action"], [class~="bg-destructive/90"]):focus-visible,
 [data-thread-item] [role="button"]:focus-visible,
 [data-sidebar-row]:focus-visible,
@@ -1548,6 +1549,69 @@ div:has(> .settings-slider) > output {
 
     &:focus-within {
       background-color: var(--w-ctrl-fill-active) !important;
+    }
+  }
+
+  /* Find's options are siblings of the field: hovering or focusing them keeps the whole box active. */
+  /* [fragile] internal hook from ProjectContentSearchDialog */
+  [data-testid="project-content-search"] div:has(> div > button[aria-pressed]) {
+    &:hover [data-slot="input-control"] {
+      background-color: var(--w-ctrl-fill-hover) !important;
+    }
+
+    &:focus-within [data-slot="input-control"] {
+      background-color: var(--w-ctrl-fill-active) !important;
+      background-image: var(--w-accent-line) !important;
+      background-size: 100% 2px !important;
+    }
+  }
+}
+
+/* Find: case / whole word / regex are inset actions in one TextBox, like the sidebar's Filter.
+   TooltipTrigger replaces the Toggle slot, so identify the options by their pressed semantics. */
+/* [fragile] internal hook from ProjectContentSearchDialog */
+[data-testid="project-content-search"] {
+  & [data-slot="input-control"] {
+    padding-inline-end: 96px !important;
+  }
+
+  & div:has(> button[aria-pressed]) {
+    inset-inline-end: calc(var(--command-shell-inset, 8px) + 4px) !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+  }
+
+  & button[aria-pressed] {
+    width: 28px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: var(--w-radius) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--w-text-secondary) !important;
+    transition: background-color var(--w-fade), color var(--w-fade) !important;
+
+    &:not(:disabled):hover {
+      background: var(--w-subtle-hover) !important;
+      color: var(--w-text) !important;
+    }
+
+    &:not(:disabled):active {
+      background: var(--w-subtle-pressed) !important;
+    }
+
+    &[aria-pressed="true"] {
+      background: var(--w-accent) !important;
+      color: var(--w-on-accent) !important;
+
+      &:not(:disabled):hover {
+        background: var(--w-accent-hover) !important;
+      }
+
+      &:not(:disabled):active {
+        background: var(--w-accent-pressed) !important;
+      }
     }
   }
 }
