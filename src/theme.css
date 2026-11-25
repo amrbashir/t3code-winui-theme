@@ -331,13 +331,19 @@ body,
       rounded top-left corner.
    --------------------------------------------------------------------- */
 
+/* With the sidebar hidden, the content meets the window's left edge. */
+/* [fragile] sidebar state from SidebarProvider */
+[data-slot="sidebar-wrapper"][data-sidebar-state="collapsed"] {
+  --w-content-radius: 0px;
+}
+
 /* [fragile] internal hook */
 [data-chat-header] + div,
 [data-slot="sidebar-inset"] header[class*="max-h-[var(--workspace-topbar-height)]"] + * {
   background: var(--w-content-layer) !important;
   border-top: 1px solid var(--w-pane-edge) !important;
   border-left: 1px solid var(--w-layer-stroke) !important;
-  border-top-left-radius: var(--w-radius-overlay) !important;
+  border-top-left-radius: var(--w-content-radius, var(--w-radius-overlay)) !important;
   overflow: clip;
 
   /* The app's top scroll-fade mask would fade the layer's own background */
