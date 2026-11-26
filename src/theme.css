@@ -467,23 +467,24 @@ body,
   transform: none !important;
 }
 
-/* Sidebar top: search box on its own row with Filter inside it (filtering narrows the same list); below it
-   New thread as a labeled standard button and Add project as an icon button. Labels are the app's own
-   aria-labels, so they follow its language. */
+/* Sidebar top: Search with Filter inside it, followed by New thread and Add project as standard icon
+   buttons on the same row. Filter is positioned from the action group's start so it stays inside Search
+   as the sidebar resizes. */
 /* [fragile] internal hook */
 div:has(> div > button[data-sidebar="menu-button"][data-size="icon"][data-slot="combobox-trigger"]) {
   position: relative;
-  flex-wrap: wrap !important;
+  flex-wrap: nowrap !important;
   gap: 8px !important;
 
   & > :first-child {
-    flex: 1 0 100% !important;
+    flex: 1 1 0 !important;
+    min-width: 0;
     padding-inline-end: 36px !important;
   }
 
   & > div:has(> button[data-slot="combobox-trigger"]) {
-    flex: 1 0 100% !important;
-    min-width: 0;
+    position: relative;
+    flex: 0 0 auto !important;
     gap: 8px !important;
 
     & > button {
@@ -495,7 +496,8 @@ div:has(> div > button[data-sidebar="menu-button"][data-size="icon"][data-slot="
     /* Filter */
     & > button[data-slot="combobox-trigger"] {
       position: absolute !important;
-      inset: 4px 4px auto auto;
+      inset-block-start: 4px;
+      inset-inline-end: calc(100% + 12px);
       width: 28px !important;
       height: 24px !important;
     }
@@ -503,6 +505,7 @@ div:has(> div > button[data-sidebar="menu-button"][data-size="icon"][data-slot="
     /* Add project, New thread */
     & > button:not([data-slot="combobox-trigger"]) {
       order: 1;
+      flex: 0 0 32px !important;
       width: 32px !important;
       height: 32px !important;
       background: var(--w-ctrl-fill) !important;
@@ -529,21 +532,6 @@ div:has(> div > button[data-sidebar="menu-button"][data-size="icon"][data-slot="
 
       &:last-of-type {
         order: 0;
-        flex: 1 1 0;
-        width: auto !important;
-        min-width: 32px;
-        padding-inline: 10px !important;
-        gap: 8px !important;
-        font-size: 14px !important;
-        font-weight: 400 !important;
-
-        &::after {
-          content: attr(aria-label);
-          overflow: hidden;
-          min-width: 0;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
       }
     }
   }
